@@ -1,0 +1,92 @@
+=============================================================
+LAB 04 SPEEDRUN GUIDE - EXECUTION PHASE
+Repository: https://github.com/igorpput/lab4
+=============================================================
+
+-------------------------------------------------------------
+1. LOGIN & PREPARATION (Step 1)
+-------------------------------------------------------------
+1. Log in to the Ubuntu lab computer.
+   - Username: put
+   - Password: lrm
+2. Open a terminal (Ctrl + Alt + T).
+3. Run the cleanup command to ensure a fresh environment:
+   docker compose -p fossbot-text-to-cmd down --volumes 2>/dev/null; \
+   docker rm -f myweb 2>/dev/null; \
+   docker image rm fossbot-text-to-cmd:latest fossbot-text-to-cmd:gpu 2>/dev/null; \
+   docker image rm $(docker images --filter "reference=vsc-fossbot-text-to-cmd*" -q) 2>/dev/null; \
+   rm -rf ~/Pictures/Screenshots /tmp/fossbot-text-to-cmd /tmp/host-output /tmp/host-input.txt
+4. Clone YOUR personal repository into the expected folder name:
+   cd /tmp
+   git clone https://github.com/igorpput/lab4.git fossbot-text-to-cmd
+   cd fossbot-text-to-cmd
+
+-------------------------------------------------------------
+2. FIRST CONTAINER (Step 3) - SCREENSHOT 1
+-------------------------------------------------------------
+1. Run the nginx container in the background:
+   docker run -d --name myweb -p 8088:80 nginx:alpine
+2. Check that it is running and query the webpage:
+   docker ps
+   curl http://localhost:8088
+
+   *** 📸 TAKE SCREENSHOT 1 ***
+   (Make sure the `docker ps` showing "myweb" and the HTML output from curl are both visible).
+
+3. Clean up the web container:
+   docker stop myweb
+   docker rm myweb
+
+-------------------------------------------------------------
+3. BUILD CUSTOM IMAGE (Step 4) - SCREENSHOT 2
+-------------------------------------------------------------
+1. Build the Docker image from your repo's Dockerfile:
+   docker build -t fossbot-text-to-cmd:latest .
+2. Verify the image was created:
+   docker images fossbot-text-to-cmd
+
+   *** 📸 TAKE SCREENSHOT 2 ***
+   (Capture the final lines of the build output showing it was tagged 'latest', plus the `docker images` output).
+
+-------------------------------------------------------------
+4. DOCKER COMPOSE (Step 6) - SCREENSHOT 3
+-------------------------------------------------------------
+1. Spin up the entire pipeline using your docker-compose.yml:
+   docker compose up
+2. Wait for all 4 services to finish and print their output. Then check their status:
+   docker compose ps -a
+
+   *** 📸 TAKE SCREENSHOT 3 ***
+   (Capture the `docker compose ps -a` table showing basic-sklearn, basic-st, reader-sklearn, and reader-st all with the status "Exited (0)").
+
+3. Tear down the compose environment and its volumes:
+   docker compose down --volumes
+
+-------------------------------------------------------------
+5. VSCODE DEV CONTAINER (Step 8) - SCREENSHOT 4
+-------------------------------------------------------------
+1. Open the current directory in VSCode:
+   code .
+2. In VSCode, press `Ctrl + Shift + P` to open the Command Palette.
+3. Type and select: `Dev Containers: Reopen in Container`.
+4. Wait for the window to reload and build. 
+5. Open the file `src/text_to_wheels.py` in the main editor tab.
+6. Open the VSCode integrated terminal (`Ctrl` + ` ` ` or via the top menu View > Terminal).
+7. Run the verification commands in the terminal:
+   python --version
+   python -m src.text_to_wheels --help
+
+   *** 📸 TAKE SCREENSHOT 4 ***
+   (Ensure 3 things are visible: 1. The code editor showing text_to_wheels.py. 2. The terminal showing the python commands. 3. The bottom-left blue status bar showing "Dev Container: fossbot-text-to-cmd").
+
+-------------------------------------------------------------
+6. CLEANUP & FINISH (Step 10 & 11)
+-------------------------------------------------------------
+1. Close VSCode.
+2. In your normal Ubuntu terminal, run the cleanup command one last time:
+   docker compose -p fossbot-text-to-cmd down --volumes 2>/dev/null; \
+   docker rm -f myweb 2>/dev/null; \
+   docker image rm fossbot-text-to-cmd:latest fossbot-text-to-cmd:gpu 2>/dev/null; \
+   docker image rm $(docker images --filter "reference=vsc-fossbot-text-to-cmd*" -q) 2>/dev/null; \
+   rm -rf /tmp/fossbot-text-to-cmd /tmp/host-output /tmp/host-input.txt
+3. Write down your answers to the 4 Analysis Questions from the lab instructions to submit alongside your 4 screenshots. You are completely done!
